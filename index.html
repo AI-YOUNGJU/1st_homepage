@@ -6,21 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>To-Do LIST</title>
     
-    <!-- PWA 및 모바일 최적화 메타 태그 -->
+    <!-- PWA 핵심 메타 태그 -->
     <meta name="description" content="AI 기반의 똑똑한 할 일 관리 앱">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#2563eb">
+    
+    <!-- iOS 전용 전체 화면 설정 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="할일관리">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="To-Do LIST">
+    
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/906/906334.png">
 
-    <!-- 환경 변수 안전 장치 (Shim) -->
-    <script>
-      window.process = window.process || { env: { API_KEY: "" } };
-    </script>
-
-    <!-- 스타일 및 폰트 -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,20 +37,27 @@
             padding: 0;
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
-            overflow-x: hidden;
-            /* iOS 스크롤 바운스 방지 */
-            position: fixed;
             width: 100%;
             height: 100%;
+            overflow-x: hidden;
+            /* iOS 바운스 효과 제어 및 전체 화면 느낌 강화 */
+            overscroll-behavior-y: none;
         }
 
         #root {
-            height: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-top: var(--sat);
+            padding-bottom: var(--sab);
+        }
+
+        main {
+            flex: 1;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
 
-        /* 초기 로딩 화면 스타일 */
         #app-loader {
             position: fixed;
             inset: 0;
@@ -73,23 +78,16 @@
             animation: spin 1s linear infinite;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        body.loaded #app-loader {
-            opacity: 0;
-            pointer-events: none;
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body.loaded #app-loader { opacity: 0; pointer-events: none; }
     </style>
 <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@19.0.0",
-    "react-dom": "https://esm.sh/react-dom@19.0.0",
-    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
-    "@google/genai": "https://esm.sh/@google/genai@1.3.0",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom": "https://esm.sh/react-dom@^19.2.3",
+    "react-dom/client": "https://esm.sh/react-dom@^19.2.3/client",
+    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
     "react/": "https://esm.sh/react@^19.2.3/",
     "vite": "https://esm.sh/vite@^7.3.1",
@@ -103,7 +101,7 @@
     <div id="app-loader">
         <div class="flex flex-col items-center gap-4">
             <div class="spinner"></div>
-            <p class="text-slate-400 font-medium text-sm">앱을 실행하고 있습니다...</p>
+            <p class="text-slate-400 font-medium text-sm">앱을 준비 중입니다...</p>
         </div>
     </div>
 
@@ -112,11 +110,21 @@
     <script type="module" src="/index.tsx"></script>
 
     <script>
+        // 로딩 화면 제거
         window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.body.classList.add('loaded');
-            }, 500);
+            setTimeout(() => { document.body.classList.add('loaded'); }, 500);
         });
+
+        // 서비스 워커 등록
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(registration => {
+                    console.log('SW registered: ', registration);
+                }).catch(registrationError => {
+                    console.log('SW registration failed: ', registrationError);
+                });
+            });
+        }
     </script>
 </body>
 </html>
