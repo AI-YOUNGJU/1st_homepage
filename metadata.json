@@ -1,0 +1,5 @@
+{
+  "name": "To-Do LIST",
+  "description": "AI 기반의 할 일 추천 및 우선순위 관리를 지원하는 세련된 할 일 관리 애플리케이션입니다.",
+  "requestFramePermissions": []
+}
